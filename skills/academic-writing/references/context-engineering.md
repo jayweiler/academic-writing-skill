@@ -95,6 +95,24 @@ When the context window compresses these away, the transcripts preserve them. Th
 
 ---
 
+## Compaction Recovery Protocol
+
+When context compaction occurs mid-session (or when resuming from a compacted conversation summary), the AI must recover state before continuing any writing work. Compaction summaries preserve *what was decided* but lose *how to work* — guardrails, voice calibration, and editorial agreements all evaporate.
+
+**Recovery steps (in order):**
+
+1. **Re-read SKILL.md** — Restores the process gates, phase requirements, and guardrail checks. Without this, the AI will default to generic writing assistance with no process enforcement.
+2. **Re-read the current section's state file** (`state/<section>.md`) — Restores editorial agreements, reference notes, draft status, and open gaps for the section in progress.
+3. **Re-read `style-guide.md`** — Restores voice and tone calibration. This is the first thing lost in compaction; without it, output drifts toward generic academic prose.
+4. **Check recent decision log entries** (`process/decision-log.md`) — Restores context on active editorial decisions and any guardrail overrides.
+5. **Confirm with the author** — State what was recovered and where we were. Ask: "Does this match where you want to continue?" Do not silently resume.
+
+**Why this matters:** Compaction creates a specific failure mode where the AI continues writing fluently but without guardrails. The output looks fine, but the process protections (bias checks, confirmation bias gates, citation verification) are gone. The author may not notice because the AI is still producing plausible prose. The recovery protocol exists to prevent this silent degradation.
+
+**Proactive save:** If you estimate that the next piece of work will push context close to compaction, save a section checkpoint *before* doing the work. A clean restore point from before compaction is worth more than trying to recover after.
+
+---
+
 ## Key Principle
 
 We control when and how context gets compressed rather than letting the system do it silently. Every piece of context that enters the window should have a persistent backup that we explicitly wrote, not a system-generated summary we can't inspect.

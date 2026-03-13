@@ -21,10 +21,9 @@ Overview of all sections and their current phase. Updated at the end of each ses
 | # | Section | Phase | Last Worked | Notes |
 |---|---------|-------|-------------|-------|
 | 0 | Introduction | not-started | | |
-| 1 | [Section Name] | not-started | | |
-| 2 | [Section Name] | not-started | | |
-| 3 | [Section Name] | not-started | | |
-| 4 | Conclusion | not-started | | |
+| 1 | Section 1: [Title] | not-started | | |
+| 2 | Section 2: [Title] | not-started | | |
+| 3 | Conclusion | not-started | | |
 
 ---
 

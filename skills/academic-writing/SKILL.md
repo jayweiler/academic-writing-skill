@@ -30,7 +30,7 @@ Every session begins here. No exceptions.
 Find and load the project's `project-config.yaml` file using this discovery sequence:
 
 1. **User specified a project** — If the user named a project or path (e.g., "let's work on the SFSU paper," "open my thesis"), use that to locate the config file.
-2. **Scan the workspace** — If no project was specified, search the workspace for all `project-config.yaml` files (e.g., `find . -name "project-config.yaml" -not -path "*/templates/*"`). Exclude template configs inside the skill's own `templates/` directory.
+2. **Scan the workspace** — If no project was specified, search the user's mounted workspace (in Cowork, the `mnt/` folder; in Claude Code, the current working directory) for all `project-config.yaml` files. Exclude template configs inside the skill's own `templates/` directory: `find <workspace_root> -name "project-config.yaml" -not -path "*/templates/*" -not -path "*/.skills/*" -maxdepth 4`. The `-maxdepth 4` prevents scanning deeply nested directories.
    - **One project found** — Load it automatically.
    - **Multiple projects found** — Present a short list with each project's `project_name` from its config and ask which one to work on.
    - **No projects found** — Ask: "Want to set up a new academic writing project?" and run the init script (see `scripts/init-project.sh`).
@@ -58,7 +58,7 @@ Do NOT proceed until the author confirms direction.
 
 Based on what we're doing, load only what's needed:
 
-**If starting a new section:** Load that section's outline, the style guide, and any existing section state file.
+**If starting a new section:** Load that section's outline, the project style guide (`style-guide.md` in the project root), and any existing section state file.
 
 **If continuing a section:** Load the section state file (which has reference notes, draft status, open gaps, decisions made).
 
@@ -95,7 +95,7 @@ Each section follows four phases. Read `references/writing-workflow.md` for deta
 - Gap analysis: remaining holes, weak claims, missing evidence
 
 ### Phase 4: Integration
-- Update the compiled draft with approved prose
+- Update the compiled draft (`drafts/compiled-draft.md` — a single file containing all approved prose in document order; create it when the first section is integrated) with approved prose
 - Log editorial decisions in the decision log
 - Update section status
 - **Post-section debrief:** What worked, what didn't, where the collaboration was genuinely interactive vs. performative. Save to process journal. These are primary source material for documenting the AI-assisted process.
@@ -110,10 +110,11 @@ Before closing any session where writing work was done:
 
 If `auto_archive_transcript` is enabled in the project config:
 
-Check the `platform` field to determine where session logs live:
-- `cowork`: Copy from the Cowork session log path
-- `claude-code`: Copy from the Claude Code transcript path
+Check the `platform` field and `session_log_access.path_pattern` to determine where session logs live:
+- `cowork`: Session logs are typically at `/sessions/<session-id>/.claude/` — the path changes each session, so use `find /sessions -name "*.jsonl" -path "*/.claude/*" -maxdepth 4` to locate them
+- `claude-code`: Session logs are at `~/.claude/projects/` — look for the most recent `.jsonl` in the project subdirectory
 - `manual`: Remind the author to save the transcript themselves
+- If `path_pattern` is set in the config, use that path directly
 
 Archive to the project's `transcripts_path` with filename `YYYY-MM-DD-session.jsonl`. Multiple sessions per day get `-2`, `-3` suffixes.
 
@@ -179,9 +180,35 @@ The skill should never access session logs without the user's explicit knowledge
 
 ---
 
+## Context Compaction Recovery
+
+Long writing sessions will often trigger context window compaction (the AI's context gets summarized to free up space). When this happens — or when you suspect it has happened (e.g., the conversation summary mentions "continuing from previous context"):
+
+1. **Re-read this SKILL.md** — Compaction loses guardrails and process gates. Don't continue writing without reloading them.
+2. **Re-read the current section's state file** (`state/<section>.md`) — This has the editorial agreements, reference notes, and draft status from before compaction.
+3. **Check the style guide** (`style-guide.md`) — Voice and tone preferences are the first thing lost in compaction.
+4. **Check the decision log** (`process/decision-log.md`) — Look at the most recent entries to restore context on active editorial decisions.
+5. **Ask the author:** "Context was compacted. I've reloaded the project state. We were working on [section] in [phase]. Does this match where you want to continue?"
+
+Do NOT silently continue writing after compaction. The risk is that guardrails, editorial agreements, and voice calibration are lost, and the output drifts without the author noticing.
+
+See `references/context-engineering.md` for the full context management strategy.
+
+---
+
+## Guardrail Modes
+
+The project config's `bias_guardrail_level` controls how strictly the guardrails are enforced:
+
+- **`standard`** (default): Guardrails flag issues (representation gaps, unverified citations, temporal concerns) and recommend action. The author can proceed with a logged override.
+- **`strict`**: Guardrails are blocking. The skill will not proceed past Phase 2 (Reference Work) until the representation audit shows diverse source coverage, all foundational citations are verified, and counter-search results have been reviewed. The author can still override, but must provide explicit reasoning for each override, which is logged with `[strict-override]` tag.
+- **`advisory`**: Guardrails mention gaps without blocking or prompting for overrides. Issues are noted in the process journal but don't interrupt the workflow. Useful for experienced authors who want lightweight awareness without process friction.
+
+Check the `bias_guardrail_level` field when loading the project config and apply accordingly.
+
 ## Guardrail Overrides
 
-When the author chooses to proceed despite a guardrail flag (e.g., representation audit gaps in strict mode, an unverified citation they want to keep, a counter-search they choose to skip), the override is **always logged** — never silently passed.
+When the author chooses to proceed despite a guardrail flag (e.g., representation audit gaps, an unverified citation they want to keep, a counter-search they choose to skip), the override is **always logged** — never silently passed.
 
 ### Override Protocol
 

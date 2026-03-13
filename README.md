@@ -2,6 +2,32 @@
 
 A process enforcement skill for responsible AI-assisted academic writing. Designed for use with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Cowork](https://claude.ai).
 
+## Quick Start
+
+**1. Install** (Claude Code):
+```bash
+/plugin install https://github.com/jayweiler/academic-writing-skill
+```
+
+**2. Initialize a project:**
+```bash
+# Find the skill (plugin install puts it in ~/.claude/plugins/)
+~/.claude/plugins/academic-writing/skills/academic-writing/scripts/init-project.sh \
+  ~/my-paper "My Paper Title" --outline ~/my-paper/outline.md
+```
+
+**3. Fill in the 3 required fields** in `my-paper/project-config.yaml`:
+```yaml
+project_name: "My Paper Title"
+author: "Your Name"
+working_directory: "."
+```
+
+**4. Start writing:**
+> "Let's work on my paper"
+
+The skill finds your project automatically and walks you through the rest.
+
 ## Why This Exists
 
 AI-assisted academic writing introduces risks that aren't obvious until you're deep in the process. An AI assistant can draft fluent prose, summarize literature, and structure arguments — but it does all of this through the lens of its training data, which overrepresents Western, English-language, highly-cited scholarship. It defaults to smooth, consensus-seeking language that can quietly flatten your sharpest arguments. It confirms your framing rather than challenging it. And when context windows compress, editorial agreements made three sessions ago can silently disappear.
@@ -11,6 +37,8 @@ These aren't hypothetical concerns. They were documented during the development 
 The core problem: **without deliberate process enforcement, the convenience of AI assistance systematically degrades the qualities that make academic writing valuable — intellectual rigor, diverse perspectives, distinctive voice, and transparent reasoning.**
 
 This skill doesn't solve that problem completely. What it does is make the risks visible, create structural checkpoints where the author's judgment is required, and maintain an honest record of how the AI was used.
+
+For an honest assessment of where each mitigation is strong and where it falls short, see [EFFECTIVENESS.md](EFFECTIVENESS.md).
 
 ## What It Does
 
@@ -26,42 +54,6 @@ The skill enforces a structured, transparent process across the full lifecycle o
 | **Citation bias** | AI preferentially surfaces well-cited sources from high-impact journals, reinforcing existing citation hierarchies | Representation lens during triage that explicitly elevates underrepresented but relevant scholarship |
 | **Hallucination** | AI generates plausible but fabricated citations, details, or claims that look authoritative | Independent verification gate — no citation enters a draft without author verification, tiered by reference importance |
 | **Context/continuity loss** | Context window compression silently drops editorial agreements, style preferences, and section-specific decisions from earlier sessions | Persistent state files, section isolation, transcript archival, explicit checkpoint protocol |
-
-## How Effective Are These Mitigations?
-
-Honest assessment — these mitigations are not all equally strong.
-
-### Structurally reliable (will fire if the skill is followed at all)
-
-**Hallucination prevention** is the hardest gate in the skill. It's a binary check — the author verifies each citation exists — not a judgment call the AI can get wrong. The residual risk is author fatigue on lower-tier references, which the skill addresses with explicit triage tiers (verify foundational refs carefully, spot-check supporting refs, skim contextual refs).
-
-**Context/continuity loss prevention** is infrastructure, not behavior. Persistent state files, session start/end protocols, and transcript archival work because they're built into the workflow structure. If you follow the skill at all, this fires.
-
-### Strong process, dependent on author engagement
-
-**Confirmation bias mitigation** is well-positioned (before drafting, not after) and mandatory. But its effectiveness depends on whether the author genuinely engages with the counterarguments or treats the step as a checkbox. This is the best structural mitigation possible — you can't do better without a separate human adversarial reviewer — but it's fundamentally a prompt to think, not a gate that blocks.
-
-**Literature bias mitigation** has real teeth. In strict mode, you can't proceed to drafting without diverse sources — that's a genuine gate. In standard mode (the default), gaps are flagged but overridable with logged reasoning. The honest limit: the AI's ability to suggest underrepresented sources is constrained by the same training data that creates the bias. The skill can flag *absences*, but it can't populate them with scholarship the AI doesn't know about. The genai-disclosure template acknowledges this structural limit rather than pretending the guardrail eliminates it.
-
-### Useful checks, dependent on AI judgment quality
-
-**Theme downweighting detection** asks the right question at the right time (post-draft: "are the sharp edges still sharp?"). But detecting whether an argument got flattened requires the AI to understand the *intended* sharpness — a subtle judgment call. The author is the real backstop; the skill's role is to remind them to look.
-
-**Language homogenization prevention** improves over time as the style guide accumulates specific preferences, but early in a project, the AI is pattern-matching against vague descriptions. The iterative drafting protocol (one passage at a time, author reacts, iterate) is actually the stronger defense — homogenization gets caught in the revision loop even if the voice check misses it.
-
-**Temporal gap detection** catches obvious staleness in foundational references but is limited by the AI's own knowledge cutoff. A paper retracted after the AI's training date won't be flagged.
-
-**Citation bias mitigation** uses the same mechanism as literature bias (the representation lens during triage). Same strengths, same structural limits around training data.
-
-### The irreducible gap
-
-Nothing in this skill can fully compensate for biases in the AI's training data. The representation audit can flag *absences* in your reference list, but it can't suggest sources the AI doesn't know about. Counter-searches help, but the AI searches with the same biased training data. The skill's honest response to this is transparency: the genai-disclosure template puts the limitation on the record, the process journal documents where the AI's suggestions were and weren't sufficient, and the decision log captures where the author overrode the AI's framing.
-
-### Why the decision log matters
-
-The decision log is arguably the most important artifact the skill produces. Every editorial choice — framing decisions, reference inclusion/exclusion, argument structure, guardrail overrides — gets recorded with what was decided, what alternatives were considered, who drove the decision (author or AI), and why. This serves multiple purposes: it prevents relitigating settled decisions when context windows reset between sessions, it provides raw material for the genai-disclosure statement, and it creates an auditable record that editorial judgment remained with the author throughout. Combined with session history tracking in each section's state file (which logs what happened in every work session, phase by phase), the decision log means no part of the writing process is a black box. If a reviewer asks "how did you arrive at this framing?" or "why did you exclude that perspective?", the answer is in the log — not reconstructed after the fact.
-
-This is by design. A tool that claimed to eliminate AI bias in academic writing would be dishonest. A tool that makes AI bias visible, creates checkpoints for human judgment, and maintains a transparent record of the collaboration — that's a credible contribution.
 
 ## Installation
 
@@ -131,6 +123,18 @@ path/to/skills/academic-writing/scripts/init-project.sh /path/to/your/paper "My 
 
 The `--outline` flag parses `## Heading` lines from your outline file and generates per-section state files and a section status tracker automatically.
 
+### Minimum Viable Setup (No Init Script)
+
+If you can't run bash or prefer manual setup, the only file you strictly need is `project-config.yaml`. Create it in your paper's directory with at least these fields:
+
+```yaml
+project_name: "My Paper"
+author: "Your Name"
+working_directory: "."
+```
+
+The skill will create missing directories and files as needed during sessions. The init script saves time by scaffolding everything upfront, but it's not required.
+
 ## Usage
 
 ### How the skill gets invoked
@@ -190,21 +194,26 @@ This would generate 6 section state files (`introduction.md` through `conclusion
 
 ### What init generates
 
-After running `init-project.sh`, your paper directory gets this structure:
+After running `init-project.sh`, your paper directory looks like this:
 
 ```
 your-paper/
-  project-config.yaml       # Author, institution, skill settings, file paths
-  section-status.md         # All sections with phase tracking (auto-populated from outline)
-  state/
-    introduction.md         # Per-section state: refs, drafting decisions, gaps, session history
-    literature-review.md
-    methodology.md
-    ...
-  process/
-    decision-log.md         # Editorial decision log (see below)
-    process-journal.md      # Process documentation for genai disclosure
-    genai-disclosure.md     # AI use disclosure statement template
+├── project-config.yaml       ← Project settings (edit this first — 3 required fields)
+├── outline.md                 ← Paper outline (placeholder, or copied from --outline)
+├── section-status.md          ← Section progress tracker (auto-populated from outline)
+├── style-guide.md             ← Writing voice/preferences (starts empty, grows over time)
+├── drafts/                    ← Section drafts and compiled draft (compiled-draft.md)
+├── state/                     ← Per-section state files (refs, decisions, gaps, history)
+│   ├── introduction.md
+│   ├── literature-review.md
+│   └── ...
+├── references/                ← Your reference notes and extracted summaries
+├── process/                   ← Process documentation
+│   ├── decision-log.md        ← Editorial decision log
+│   ├── process-journal.md     ← Process documentation for genai disclosure
+│   └── genai-disclosure.md    ← AI use disclosure statement template
+├── context/                   ← Project-specific context files (interaction patterns, etc.)
+└── session_transcripts/       ← Archived session logs
 ```
 
 If any of these files already exist (e.g., you have an existing decision log), init won't overwrite them.
@@ -271,6 +280,18 @@ The skill detects which phase you're in based on project state and loads only th
 
 Every session starts with orientation (where did we leave off, what's next) and ends with state persistence (save transcript, log decisions, update section status). This ensures continuity across sessions even when the context window resets.
 
+### Context Compaction Recovery
+
+Long writing sessions will trigger context compaction (the AI's context gets summarized to free space). The skill includes an explicit recovery protocol: re-read SKILL.md and the section state file, check the style guide and recent decision log entries, then confirm with the author before continuing. This prevents the specific failure mode where the AI continues producing fluent prose but without guardrails. See `references/context-engineering.md` for the full strategy.
+
+### Guardrail Modes
+
+Three levels of guardrail enforcement, set in `project-config.yaml`:
+
+- **`standard`** (default) — Flags issues, recommends action, allows overrides with logged reasoning
+- **`strict`** — Blocks progression past reference work until representation audit passes and citations are verified; overrides require explicit reasoning
+- **`advisory`** — Mentions gaps without blocking; notes issues in the process journal without interrupting workflow
+
 ### Guardrail Overrides
 
 All guardrails can be overridden — but overrides are always logged. The skill uses a `[guardrail-override]` tag in the decision log so that any override is traceable. The principle: an override with documented reasoning is better than a guardrail quietly ignored.
@@ -281,28 +302,31 @@ The skill auto-detects whether it's running in Cowork, Claude Code, or a manual 
 
 ## Project Structure
 
+### Repository layout
+
 ```
 academic-writing-skill/
-  .claude-plugin/
-    plugin.json                     # Plugin manifest for Claude Code
-  skills/
-    academic-writing/
-      SKILL.md                      # Main skill file (process engine)
-      references/
-        writing-workflow.md         # Detailed phase-by-phase instructions
-        bias-guardrails.md          # Literature bias guardrails + reference triage
-        context-engineering.md      # Context window management strategies
-      templates/
-        project-config.yaml         # Project configuration (defaults + permissions)
-        section-state.md            # Per-section state file template
-        decision-log.md             # Editorial decision logging template
-        process-journal.md          # Process documentation template
-        section-status.md           # Project-wide section tracking
-        genai-disclosure.md         # AI use disclosure statement template
-      scripts/
-        init-project.sh             # Project scaffolding (with --outline support)
-  README.md
-  LICENSE
+├── .claude-plugin/
+│   └── plugin.json                     # Plugin manifest for Claude Code
+├── skills/
+│   └── academic-writing/
+│       ├── SKILL.md                    # Main skill file (process engine)
+│       ├── references/
+│       │   ├── writing-workflow.md     # Detailed phase-by-phase instructions
+│       │   ├── bias-guardrails.md      # Literature bias guardrails + reference triage
+│       │   └── context-engineering.md  # Context window management strategies
+│       ├── templates/
+│       │   ├── project-config.yaml     # Project configuration schema
+│       │   ├── section-state.md        # Per-section state file template
+│       │   ├── decision-log.md         # Editorial decision logging template
+│       │   ├── process-journal.md      # Process documentation template
+│       │   ├── section-status.md       # Project-wide section tracking
+│       │   └── genai-disclosure.md     # AI use disclosure statement template
+│       └── scripts/
+│           └── init-project.sh         # Project scaffolding (with --outline support)
+├── EFFECTIVENESS.md                    # Honest assessment of mitigation strengths/limits
+├── README.md
+└── LICENSE
 ```
 
 ## Background

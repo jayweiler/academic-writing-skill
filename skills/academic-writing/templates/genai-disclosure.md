@@ -27,7 +27,7 @@ The collaboration followed a structured process designed to ensure human editori
 - **Editorial decision logging:** Key editorial decisions were documented with reasoning and attribution (author-initiated vs. AI-suggested).
 - **Session transcripts:** Raw collaboration transcripts were archived for process transparency.
 
-[If applicable: The process framework used is documented in [citation/link to the academic-writing-skill repository].]
+[If applicable: The process framework used is documented at https://github.com/jayweiler/academic-writing-skill.]
 
 ### Author Responsibility
 
