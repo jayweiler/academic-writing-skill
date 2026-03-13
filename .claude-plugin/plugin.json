@@ -1,0 +1,9 @@
+{
+  "name": "academic-writing",
+  "description": "Process enforcement skill for responsible AI-assisted academic writing. Addresses literature bias, confirmation bias, theme downweighting, language homogenization, hallucination, and context loss through structured guardrails and transparent decision logging.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jay Weiler"
+  },
+  "license": "MIT"
+}

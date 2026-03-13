@@ -65,31 +65,42 @@ This is by design. A tool that claimed to eliminate AI bias in academic writing 
 
 ## Installation
 
-Clone the repo somewhere on your machine, then link or copy it into the appropriate skills directory.
+### Claude Code (Plugin — Recommended)
+
+Install directly from GitHub as a Claude Code plugin:
+
+```bash
+/plugin install https://github.com/jayweiler/academic-writing-skill
+```
+
+The skill becomes available as `/academic-writing:academic-writing` in any Claude Code session.
+
+### Cowork (Claude Desktop)
+
+Cowork doesn't support plugin install yet, so clone and symlink manually. The skill directory inside the repo is what Cowork needs:
 
 ```bash
 git clone https://github.com/jayweiler/academic-writing-skill.git \
   ~/path/to/your/working/copy
-```
 
-### Cowork (Claude Desktop)
-
-Skills live in `~/Documents/Claude/.skills/skills/`. Symlink is recommended if you plan to develop or update the skill:
-
-```bash
 mkdir -p ~/Documents/Claude/.skills/skills
-ln -s ~/path/to/your/working/copy ~/Documents/Claude/.skills/skills/academic-writing
+ln -s ~/path/to/your/working/copy/skills/academic-writing \
+  ~/Documents/Claude/.skills/skills/academic-writing
 ```
 
 The skill will appear in the available skills list on your next session.
 
-### Claude Code
+### Claude Code (Manual)
 
-Skills live in `~/.claude/skills/`:
+If you prefer manual installation over the plugin method:
 
 ```bash
+git clone https://github.com/jayweiler/academic-writing-skill.git \
+  ~/path/to/your/working/copy
+
 mkdir -p ~/.claude/skills
-ln -s ~/path/to/your/working/copy ~/.claude/skills/academic-writing
+ln -s ~/path/to/your/working/copy/skills/academic-writing \
+  ~/.claude/skills/academic-writing
 ```
 
 ### Project-Local Installation
@@ -97,19 +108,25 @@ ln -s ~/path/to/your/working/copy ~/.claude/skills/academic-writing
 You can also install the skill into a specific project's `.skills/` directory:
 
 ```bash
-ln -s ~/path/to/your/working/copy /path/to/your/project/.skills/academic-writing
+ln -s ~/path/to/your/working/copy/skills/academic-writing \
+  /path/to/your/project/.skills/academic-writing
 ```
 
 ### Initialize a New Paper Project
 
-Once installed, scaffold a new paper project:
+Once installed, scaffold a new paper project using the init script:
 
 ```bash
+# Find the skill location (depends on install method)
+# Plugin install: ~/.claude/plugins/academic-writing/skills/academic-writing/
+# Manual install: wherever you cloned/linked it
+
 # Basic setup
-./scripts/init-project.sh /path/to/your/paper "My Paper Title"
+path/to/skills/academic-writing/scripts/init-project.sh /path/to/your/paper "My Paper Title"
 
 # With auto-generated section states from an existing outline
-./scripts/init-project.sh /path/to/your/paper "My Paper Title" --outline /path/to/outline.md
+path/to/skills/academic-writing/scripts/init-project.sh /path/to/your/paper "My Paper Title" \
+  --outline /path/to/outline.md
 ```
 
 The `--outline` flag parses `## Heading` lines from your outline file and generates per-section state files and a section status tracker automatically.
@@ -207,7 +224,7 @@ Each section gets a persistent state file that tracks references (tiered as Foun
 | 2026-03-12 | drafting       | Drafted 3 passages, author approved 2  | Sharpened para 2 language   |
 ```
 
-See `templates/section-state.md` for the full template.
+See `skills/academic-writing/templates/section-state.md` for the full template.
 
 ## How It Works
 
@@ -237,21 +254,27 @@ The skill auto-detects whether it's running in Cowork, Claude Code, or a manual 
 ## Project Structure
 
 ```
-academic-writing/
-  SKILL.md                          # Main skill file (process engine)
-  references/
-    writing-workflow.md             # Detailed phase-by-phase instructions
-    bias-guardrails.md              # Literature bias guardrails + reference triage
-    context-engineering.md          # Context window management strategies
-  templates/
-    project-config.yaml             # Project configuration (defaults + permissions)
-    section-state.md                # Per-section state file template
-    decision-log.md                 # Editorial decision logging template
-    process-journal.md              # Process documentation template
-    section-status.md               # Project-wide section tracking
-    genai-disclosure.md             # AI use disclosure statement template
-  scripts/
-    init-project.sh                 # Project scaffolding (with --outline support)
+academic-writing-skill/
+  .claude-plugin/
+    plugin.json                     # Plugin manifest for Claude Code
+  skills/
+    academic-writing/
+      SKILL.md                      # Main skill file (process engine)
+      references/
+        writing-workflow.md         # Detailed phase-by-phase instructions
+        bias-guardrails.md          # Literature bias guardrails + reference triage
+        context-engineering.md      # Context window management strategies
+      templates/
+        project-config.yaml         # Project configuration (defaults + permissions)
+        section-state.md            # Per-section state file template
+        decision-log.md             # Editorial decision logging template
+        process-journal.md          # Process documentation template
+        section-status.md           # Project-wide section tracking
+        genai-disclosure.md         # AI use disclosure statement template
+      scripts/
+        init-project.sh             # Project scaffolding (with --outline support)
+  README.md
+  LICENSE
 ```
 
 ## Background
