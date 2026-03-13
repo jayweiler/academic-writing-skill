@@ -27,9 +27,14 @@ Every session begins here. No exceptions.
 
 ### Step 1: Load Project Config
 
-Read the project's `project-config.yaml` file. If the user hasn't specified which project, check for a config file in the current working directory or ask.
+Find and load the project's `project-config.yaml` file using this discovery sequence:
 
-If no project exists yet, ask: "Want to set up a new academic writing project?" and run the init script (see `scripts/init-project.sh`).
+1. **User specified a project** — If the user named a project or path (e.g., "let's work on the SFSU paper," "open my thesis"), use that to locate the config file.
+2. **Scan the workspace** — If no project was specified, search the workspace for all `project-config.yaml` files (e.g., `find . -name "project-config.yaml" -not -path "*/templates/*"`). Exclude template configs inside the skill's own `templates/` directory.
+   - **One project found** — Load it automatically.
+   - **Multiple projects found** — Present a short list with each project's `project_name` from its config and ask which one to work on.
+   - **No projects found** — Ask: "Want to set up a new academic writing project?" and run the init script (see `scripts/init-project.sh`).
+3. **Remember the choice** — Once a project is selected for a session, don't re-prompt. If the user wants to switch, they'll say so.
 
 ### Step 2: Read Project State
 

@@ -131,6 +131,34 @@ path/to/skills/academic-writing/scripts/init-project.sh /path/to/your/paper "My 
 
 The `--outline` flag parses `## Heading` lines from your outline file and generates per-section state files and a section status tracker automatically.
 
+## Usage
+
+### How the skill gets invoked
+
+The skill triggers automatically based on what you say. In Cowork, the system matches your request against skill descriptions — phrases like "let's work on my paper," "paper session," "next section," or "resume writing" will load the skill. In Claude Code, the plugin registers as `/academic-writing:academic-writing` and can also be triggered by natural language.
+
+You don't need to remember a command. Just talk about your paper and the skill should load. If it doesn't auto-trigger, you can invoke it explicitly:
+
+- **Cowork:** `/academic-writing`
+- **Claude Code (plugin):** `/academic-writing:academic-writing`
+
+### Multiple projects
+
+The skill supports multiple concurrent paper projects. Each project is a separate directory with its own `project-config.yaml`, state files, and decision log.
+
+When you start a session, the skill scans your workspace for `project-config.yaml` files. If it finds one project, it loads automatically. If it finds multiple, it presents a list and asks which one you want to work on. If the skill can tell from context which project you mean (e.g., "let's work on the SFSU paper" when one project is named "Bias in AI Safety Measures"), it'll load that one directly.
+
+Once a project is selected for a session, the skill stays on it unless you say otherwise.
+
+### What a typical session looks like
+
+1. You say something like "let's do a paper session" or "pick up where we left off on the thesis"
+2. The skill loads your project config and section status
+3. It tells you where you left off, what the natural next step is, and any open items from the decision log
+4. You confirm or redirect, and the phase-gated workflow takes over from there
+
+The skill tracks which phase each section is in (orientation, reference work, drafting, integration) and loads only the guidance relevant to that phase — so the AI's context window isn't cluttered with instructions for phases you aren't in yet.
+
 ## Examples
 
 ### Outline format
