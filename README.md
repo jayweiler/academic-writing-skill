@@ -67,15 +67,17 @@ The skill becomes available as `/academic-writing:academic-writing` in any Claud
 
 ### Cowork (Claude Desktop)
 
-Cowork has a built-in plugin manager:
+**Easiest:** Download the `.skill` file from [Releases](https://github.com/jayweiler/academic-writing-skill/releases) and open it in Cowork — it installs with one click.
 
-1. Open the Customize menu in the left sidebar
-2. Click **Browse plugins** (for official/marketplace plugins) or use the upload option for custom plugins
-3. To install this skill as a custom plugin, download or clone the repo and upload the plugin directory through the Customize menu
+To build the `.skill` file yourself from the repo:
 
-The skill will appear in the available skills list on your next session. Type `/` or click the `+` button to see it.
+```bash
+cd skills && zip -r academic-writing.skill academic-writing/
+```
 
-If you prefer manual installation, clone and symlink the skill directory:
+Then open the `.skill` file in Cowork or drag it into a session.
+
+**Alternative — manual symlink:**
 
 ```bash
 git clone https://github.com/jayweiler/academic-writing-skill.git \
