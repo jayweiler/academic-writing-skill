@@ -53,7 +53,7 @@ The skill enforces a structured, transparent process across the full lifecycle o
 | **Temporal gaps** | AI training has a knowledge cutoff; recent developments, retractions, or superseding work may be missing | Recency verification for foundational references, flagging potential staleness |
 | **Citation bias** | AI preferentially surfaces well-cited sources from high-impact journals, reinforcing existing citation hierarchies | Representation lens during triage that explicitly elevates underrepresented but relevant scholarship |
 | **Hallucination** | AI generates plausible but fabricated citations, details, or claims that look authoritative | Independent verification gate — no citation enters a draft without author verification, tiered by reference importance |
-| **Context/continuity loss** | Context window compression silently drops editorial agreements, style preferences, and section-specific decisions from earlier sessions | Persistent state files, section isolation, transcript archival, explicit checkpoint protocol |
+| **Context/continuity loss** | During long sessions, the AI quietly summarizes older conversation to free memory — silently dropping your editorial agreements, style corrections, and guardrail rules without warning (see [The Silent Reset Problem](#the-silent-reset-problem-context-compaction)) | Persistent state files that survive resets, mandatory recovery protocol before resuming work, proactive checkpoints, session transcript archival |
 
 ## Installation
 
@@ -280,9 +280,24 @@ The skill detects which phase you're in based on project state and loads only th
 
 Every session starts with orientation (where did we leave off, what's next) and ends with state persistence (save transcript, log decisions, update section status). This ensures continuity across sessions even when the context window resets.
 
-### Context Compaction Recovery
+### The Silent Reset Problem (Context Compaction)
 
-Long writing sessions will trigger context compaction (the AI's context gets summarized to free space). The skill includes an explicit recovery protocol: re-read SKILL.md and the section state file, check the style guide and recent decision log entries, then confirm with the author before continuing. This prevents the specific failure mode where the AI continues producing fluent prose but without guardrails. See `references/context-engineering.md` for the full strategy.
+AI assistants have a limited working memory called a "context window." Think of it as the AI's desk — it can only hold so many pages at once. During a long conversation, the system quietly summarizes older parts of the conversation to make room for new ones. This is called **context compaction**, and it happens automatically, without warning.
+
+Here's why that matters for writing: when compaction happens, it preserves *what was decided* — "we're writing about bias in safety measures" — but loses *how we agreed to work*. The specific editorial rules you negotiated ("don't hedge this argument," "always check for non-Western sources," "match my voice, not generic academic prose") get compressed into a summary that doesn't include them. The AI keeps writing fluently, but the guardrails are gone.
+
+This is the most dangerous failure mode in AI-assisted writing, because **it's invisible**. The output still looks polished. The AI doesn't announce that it lost your agreements. You might not notice that your carefully calibrated voice drifted back to generic academic prose, or that the bias checks stopped happening, or that the AI started confirming your framing instead of challenging it. Everything that made the collaboration rigorous quietly evaporates, and what's left is a fluent but unguarded text generator.
+
+**What this skill does about it:**
+
+The skill treats compaction as a first-class risk with multiple layers of defense:
+
+1. **Persistent state files** — Every editorial agreement, reference decision, and drafting choice is written to files on disk that survive compaction. The AI's working memory is temporary; these files are not.
+2. **Recovery protocol** — When compaction occurs, the skill requires the AI to reload its instructions, your style guide, the current section's state, and recent editorial decisions *before writing another word*. Then it confirms with you: "Here's what I recovered — does this match where you want to continue?"
+3. **Proactive checkpoints** — Before any work that might push the conversation toward compaction (reviewing a long reference, iterating on a complex passage), the skill saves a clean checkpoint. A restore point from *before* compaction is more reliable than trying to recover after.
+4. **Session transcripts** — Raw conversation logs are archived to your project folder, preserving the actual back-and-forth (disagreements, corrections, iterations) that summaries flatten.
+
+The goal: you should never have to wonder whether the AI is still following the rules you set. If compaction happens, the recovery is explicit and visible, not silent. For the full technical strategy, see `references/context-engineering.md`.
 
 ### Guardrail Modes
 
