@@ -12,7 +12,7 @@ A process enforcement skill for responsible AI-assisted academic writing. Design
 **2. Initialize a project:**
 ```bash
 # Find the skill (plugin install puts it in ~/.claude/plugins/<repo-name>/)
-~/.claude/plugins/ai-writing-collaboration-guardrails/skills/academic-writing/scripts/init-project.sh \
+~/.claude/plugins/ai-writing-collaboration-guardrails/skills/ai-writing-guardrails/scripts/init-project.sh \
   ~/my-paper "My Paper Title" --outline ~/my-paper/outline.md
 ```
 
@@ -63,7 +63,7 @@ Install directly from GitHub as a Claude Code plugin:
 /plugin install https://github.com/jayweiler/ai-writing-collaboration-guardrails
 ```
 
-The skill becomes available as `/academic-writing:academic-writing` in any Claude Code session.
+The skill becomes available as `/ai-writing-guardrails:ai-writing-guardrails` in any Claude Code session.
 
 ### Cowork (Claude Desktop)
 
@@ -72,7 +72,7 @@ The skill becomes available as `/academic-writing:academic-writing` in any Claud
 To build the `.skill` file yourself from the repo:
 
 ```bash
-cd skills && zip -r academic-writing.skill academic-writing/
+cd skills && zip -r ai-writing-guardrails.skill ai-writing-guardrails/
 ```
 
 Then open the `.skill` file in Cowork or drag it into a session.
@@ -84,8 +84,8 @@ git clone https://github.com/jayweiler/ai-writing-collaboration-guardrails.git \
   ~/path/to/your/working/copy
 
 mkdir -p ~/Documents/Claude/.skills/skills
-ln -s ~/path/to/your/working/copy/skills/academic-writing \
-  ~/Documents/Claude/.skills/skills/academic-writing
+ln -s ~/path/to/your/working/copy/skills/ai-writing-guardrails \
+  ~/Documents/Claude/.skills/skills/ai-writing-guardrails
 ```
 
 ### Claude Code (Manual)
@@ -97,8 +97,8 @@ git clone https://github.com/jayweiler/ai-writing-collaboration-guardrails.git \
   ~/path/to/your/working/copy
 
 mkdir -p ~/.claude/skills
-ln -s ~/path/to/your/working/copy/skills/academic-writing \
-  ~/.claude/skills/academic-writing
+ln -s ~/path/to/your/working/copy/skills/ai-writing-guardrails \
+  ~/.claude/skills/ai-writing-guardrails
 ```
 
 ### Project-Local Installation
@@ -106,8 +106,8 @@ ln -s ~/path/to/your/working/copy/skills/academic-writing \
 You can also install the skill into a specific project's `.skills/` directory:
 
 ```bash
-ln -s ~/path/to/your/working/copy/skills/academic-writing \
-  /path/to/your/project/.skills/academic-writing
+ln -s ~/path/to/your/working/copy/skills/ai-writing-guardrails \
+  /path/to/your/project/.skills/ai-writing-guardrails
 ```
 
 ### Initialize a New Paper Project
@@ -116,14 +116,14 @@ Once installed, scaffold a new paper project using the init script:
 
 ```bash
 # Find the skill location (depends on install method)
-# Plugin install: ~/.claude/plugins/ai-writing-collaboration-guardrails/skills/academic-writing/
+# Plugin install: ~/.claude/plugins/ai-writing-collaboration-guardrails/skills/ai-writing-guardrails/
 # Manual install: wherever you cloned/linked it
 
 # Basic setup
-path/to/skills/academic-writing/scripts/init-project.sh /path/to/your/paper "My Paper Title"
+path/to/skills/ai-writing-guardrails/scripts/init-project.sh /path/to/your/paper "My Paper Title"
 
 # With auto-generated section states from an existing outline
-path/to/skills/academic-writing/scripts/init-project.sh /path/to/your/paper "My Paper Title" \
+path/to/skills/ai-writing-guardrails/scripts/init-project.sh /path/to/your/paper "My Paper Title" \
   --outline /path/to/outline.md
 ```
 
@@ -145,12 +145,12 @@ The skill will create missing directories and files as needed during sessions. T
 
 ### How the skill gets invoked
 
-The skill triggers automatically based on what you say. In Cowork, the system matches your request against skill descriptions — phrases like "let's work on my paper," "paper session," "next section," or "resume writing" will load the skill. In Claude Code, the plugin registers as `/academic-writing:academic-writing` and can also be triggered by natural language.
+The skill triggers automatically based on what you say. In Cowork, the system matches your request against skill descriptions — phrases like "let's work on my paper," "paper session," "next section," or "resume writing" will load the skill. In Claude Code, the plugin registers as `/ai-writing-guardrails:ai-writing-guardrails` and can also be triggered by natural language.
 
 You don't need to remember a command. Just talk about your paper and the skill should load. If it doesn't auto-trigger, you can invoke it explicitly:
 
-- **Cowork:** `/academic-writing`
-- **Claude Code (plugin):** `/academic-writing:academic-writing`
+- **Cowork:** `/ai-writing-guardrails`
+- **Claude Code (plugin):** `/ai-writing-guardrails:ai-writing-guardrails`
 
 ### Multiple projects
 
@@ -278,7 +278,7 @@ Each section gets a persistent state file that tracks references (tiered as Foun
 | 2026-03-12 | drafting       | Drafted 3 passages, author approved 2  | Sharpened para 2 language   |
 ```
 
-See `skills/academic-writing/templates/section-state.md` for the full template.
+See `skills/ai-writing-guardrails/templates/section-state.md` for the full template.
 
 ## How It Works
 
@@ -341,7 +341,7 @@ ai-writing-collaboration-guardrails/
 ├── .claude-plugin/
 │   └── plugin.json                     # Plugin manifest for Claude Code
 ├── skills/
-│   └── academic-writing/
+│   └── ai-writing-guardrails/
 │       ├── SKILL.md                    # Main skill file (process engine)
 │       ├── references/
 │       │   ├── writing-workflow.md     # Detailed phase-by-phase instructions

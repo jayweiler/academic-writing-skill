@@ -1,5 +1,5 @@
 ---
-name: academic-writing
+name: ai-writing-guardrails
 description: "AI-assisted academic writing process enforcer. Use this skill whenever the user wants to work on an academic paper, thesis, dissertation, or research document collaboratively with AI. Enforces phase-gated workflows, literature bias guardrails, citation verification, session transcript archival, and editorial decision logging. Triggers on: 'work on my paper', 'let's write', 'next section', 'paper session', 'resume writing', academic writing tasks, or any reference to a configured academic writing project. Also use when the user wants to set up a new academic writing project with process guardrails."
 ---
 
