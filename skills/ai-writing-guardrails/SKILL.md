@@ -180,6 +180,39 @@ The skill should never access session logs without the user's explicit knowledge
 
 ---
 
+## Continuous Improvement
+
+This skill is actively developed. During any session where the skill is running, watch for friction — things that feel wrong, take too long, produce bad results, or don't match the user's expectations.
+
+### Issue Capture Protocol
+
+When you notice a problem during a writing session:
+
+1. **Don't stop the writing session to fix it.** Finish the current writing task first.
+2. **Log the issue.** Append a one-liner to a `skill-issues.md` file in the project directory. Format:
+   ```
+   - YYYY-MM-DD: [brief description of what went wrong or felt off]
+   ```
+3. **Move on.** The issue will be addressed in a dedicated skill improvement session, not mid-writing.
+
+### What Counts as an Issue
+
+- A guardrail triggered incorrectly (false positive) or failed to trigger (false negative)
+- Phase-gating felt too rigid or too loose for the situation
+- The skill asked for confirmation at an awkward time (interrupting flow)
+- Citation verification produced a wrong result or missed something
+- Session transcript archival failed or archived to the wrong location
+- Decision extraction missed an important editorial decision
+- The skill's voice calibration or style guide checking was off
+- Context compaction recovery didn't restore enough state
+- Any moment where the author had to work around the skill instead of with it
+
+### Improvement Cycle
+
+Issues accumulate in the project's `skill-issues.md`. In a dedicated session (not during writing), review them, make changes to the skill's SKILL.md, rebuild the .skill package, and clear resolved issues. Batch improvements into a version bump.
+
+---
+
 ## Context Compaction Recovery
 
 Long writing sessions will often trigger context window compaction (the AI's context gets summarized to free up space). When this happens — or when you suspect it has happened (e.g., the conversation summary mentions "continuing from previous context"):

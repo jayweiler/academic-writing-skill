@@ -371,6 +371,20 @@ The skill is both a process used during the paper's development and a standalone
 
 MIT. See [LICENSE](LICENSE).
 
+## Continuous Improvement
+
+The skill self-documents its own issues during use. When something goes wrong in a writing session (a guardrail misfires, phase-gating interrupts flow, a citation check fails), the AI logs a one-liner to a `skill-issues.md` file in your project directory — then moves on without stopping the writing session. Issues accumulate and get fixed in batched improvement sessions, not mid-writing.
+
+To make this work across sessions (including when the skill isn't actively loaded), add a line to your `CLAUDE.md` or system instructions:
+
+```
+When a skill does something wrong (bad trigger, missing step, incorrect output),
+log a one-liner to the skill's issues file. Don't stop the session to fix it.
+Issues file for writing guardrails: <your-project>/skill-issues.md
+```
+
+This ensures friction gets captured even if the skill has already unloaded from context.
+
 ## Contributing
 
 Issues and pull requests welcome. This is a process tool, so the most valuable contributions are:
